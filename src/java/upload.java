@@ -9,6 +9,7 @@ import com.amazonaws.services.s3.AmazonS3Client;
 import com.amazonaws.services.s3.model.ProgressEvent;
 import com.amazonaws.services.s3.model.ProgressListener;
 import com.amazonaws.services.s3.model.PutObjectRequest;
+import com.amazonaws.util.json.JSONObject;
 import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
@@ -23,6 +24,13 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.xml.ws.Response;
+import org.apache.http.HttpEntity;
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.util.EntityUtils;
 import org.apache.tomcat.util.http.fileupload.FileItem;
 import org.apache.tomcat.util.http.fileupload.FileItemFactory;
 import org.apache.tomcat.util.http.fileupload.FileUploadException;
@@ -62,31 +70,79 @@ public class upload extends HttpServlet {
                         // Cria nome do arquivo (key) para ser enviado ao servidor
                         String NomeArquivo = ObjItemUpload.getName().substring(0,ObjItemUpload.getName().lastIndexOf("."));
                         String ExtensaoArquivo = ObjItemUpload.getName().substring(ObjItemUpload.getName().lastIndexOf(".") + 1,ObjItemUpload.getName().length()); 
-  
-                        NomeArquivo += UUID.randomUUID().toString() + "." + ExtensaoArquivo;
+                        
+                        NomeArquivo += UUID.randomUUID().toString();
+                        String NomeArquivoExt = NomeArquivo + "." + ExtensaoArquivo;
 
                         // Inicia os objetos de conexão da Amazon S3 com as credenciais
                         AmazonS3 ObjAmazonS3 = new AmazonS3Client(new PropertiesCredentials(upload.class.getResourceAsStream("AwsCredenciais.properties")));
                             
                         // Envia para o servidor da Amazon
-                        ObjAmazonS3.putObject("renansbtech", NomeArquivo, ObjItemUpload.getInputStream(), null);
+                        ObjAmazonS3.putObject("renansbtech", NomeArquivoExt, ObjItemUpload.getInputStream(), null);
 
-                        // Converte o Arquivo
-                        
+                        // Converte o Arquivo                        
+                        HttpClient ObjHTTPClient = new DefaultHttpClient();
+                        try {
+                            // Cria o JSON e envia para o Zencoder...
+                            JSONObject ObjJSONTotal = new JSONObject();
+                            JSONObject ObjJSONOutput = new JSONObject();
+                            JSONObject ObjJSONThumb = new JSONObject();
+                            
+                            ObjJSONThumb.put("number", 1);
+                            ObjJSONThumb.put("width", 300);
+                            ObjJSONThumb.put("height", 160);
+                            ObjJSONThumb.put("base_url", "s3://renansbtech");
+                            ObjJSONThumb.put("filename", NomeArquivo + "_thumb.png");
+                            
+                            ObjJSONOutput.put("url", "s3://renansbtech/" + NomeArquivo + "_saida.mp4");
+                            ObjJSONOutput.put("base_url", "s3://renansbtech");
+                            ObjJSONOutput.put("filename", NomeArquivo + "_saida.mp4");
+                            ObjJSONOutput.put("format", "mp4");
+                            ObjJSONOutput.put("video_codec", "h264");
+                            ObjJSONOutput.put("audio_codec", "aac");
+                            ObjJSONOutput.put("public", 1);
+                            
+                            ObjJSONThumb.put("number", 1);
+                            ObjJSONThumb.put("base_url", "s3://renansbtech");
+                            ObjJSONThumb.put("filename", NomeArquivo + "_thumb");
+                            ObjJSONThumb.put("public", 1);
+                            
+                            ObjJSONOutput.put("thumbnails", ObjJSONThumb);
+                            
+                            
+                            //ObjJSONOutput.put("thumbnails", ObjJSONThumb);
+                                                       
+                            //ObjJSONThumb.put("public", 1);                            
+                            
+                            ObjJSONTotal.put("test", true);
+                            ObjJSONTotal.put("input", "s3://renansbtech/" + NomeArquivoExt);
+                            ObjJSONTotal.put("output", ObjJSONOutput);
+                     
+                            // Enviando para o Zencoder
+                            StringEntity ObjParamJSON = new StringEntity(ObjJSONTotal.toString());
+                            HttpPost ObjRequestZE = new HttpPost("https://app.zencoder.com/api/v2/jobs");
+                            ObjRequestZE.addHeader("Content-Type", "application/json");
+                            ObjRequestZE.addHeader("Zencoder-Api-Key", "8f620714328977328c3b0fc972bf185c");
+                            ObjRequestZE.setEntity(ObjParamJSON);
+                            ObjHTTPClient.execute(ObjRequestZE);
+
+                        } catch (Exception ex) {
+                            response.sendRedirect("erro.jsp?idErro=e3&msg="+ex.getMessage());
+                        } finally {
+                            ObjHTTPClient.getConnectionManager().shutdown();
+                        }
                         
                         // Redireciona o usuário para a página informando do Upload.
-                        response.sendRedirect("index.jsp");
+                        response.sendRedirect("sucesso.jsp");
                     }
                 }
             } catch (FileUploadException ex) {
-                throw new ServletException(ex.getMessage(), ex.getCause());
+                response.sendRedirect("erro.jsp?idErro=e2&msg="+ex.getMessage());
             }           
             
         } else {
-            throw new ServletException("O formulário não é um upload.");
-        }
-
-        
+            response.sendRedirect("erro.jsp?idErro=e1");
+        }        
     }
 
 

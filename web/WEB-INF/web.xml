@@ -4,9 +4,17 @@
         <servlet-name>upload</servlet-name>
         <servlet-class>upload</servlet-class>
     </servlet>
+    <servlet>
+        <servlet-name>videos</servlet-name>
+        <servlet-class>videos</servlet-class>
+    </servlet>
     <servlet-mapping>
         <servlet-name>upload</servlet-name>
         <url-pattern>/upload</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>videos</servlet-name>
+        <url-pattern>/videos</url-pattern>
     </servlet-mapping>
     <session-config>
         <session-timeout>
