@@ -3,7 +3,7 @@
  * and open the template in the editor.
  */
 
-import com.amazonaws.util.json.JSONException;
+import com.amazonaws.auth.PropertiesCredentials;
 import com.amazonaws.util.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -40,7 +40,7 @@ public class videos extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         try {
-            URL url = new URL("https://app.zencoder.com/api/v2/jobs.json?api_key=8f620714328977328c3b0fc972bf185c&per_page=5");
+            URL url = new URL("https://app.zencoder.com/api/v2/jobs.json?api_key=" + (new PropertiesCredentials(upload.class.getResourceAsStream("ZencoderCredenciais.properties"))).getAWSAccessKeyId() + "&per_page=5");
             HttpURLConnection connection = (HttpURLConnection)url.openConnection();
             connection.setRequestMethod("GET");
             connection.connect();
