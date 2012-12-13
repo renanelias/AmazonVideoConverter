@@ -55,75 +55,77 @@ public class upload extends HttpServlet {
                     FileItem ObjItemUpload = (FileItem) ObjIterator.next();
 
                     if (!ObjItemUpload.isFormField()) {
-                        // Cria nome do arquivo (key) para ser enviado ao servidor
-                        String NomeArquivo = ObjItemUpload.getName().substring(0,ObjItemUpload.getName().lastIndexOf("."));
-                        String ExtensaoArquivo = ObjItemUpload.getName().substring(ObjItemUpload.getName().lastIndexOf(".") + 1,ObjItemUpload.getName().length()); 
+                        // Verifica se o tipo do arquivo é vídeo...
+                        if (!ObjItemUpload.getContentType().contains("video")) {
+                            response.sendRedirect("erro.jsp?idErro=e4");
+                        } else {
+                            // Cria nome do arquivo (key) para ser enviado ao servidor
+                            String NomeArquivo = ObjItemUpload.getName().substring(0,ObjItemUpload.getName().lastIndexOf("."));
+                            String ExtensaoArquivo = ObjItemUpload.getName().substring(ObjItemUpload.getName().lastIndexOf(".") + 1,ObjItemUpload.getName().length()); 
+
+                            // Adiciona UUID random para não permitir que existam arquivos repetidos no S3
+                            NomeArquivo += UUID.randomUUID().toString();
+                            
+                            // Permite apenas nomes com letras e números
+                            NomeArquivo = NomeArquivo.replaceAll("[^a-zA-Z0-9]+","");
+                            
+                            // Adiciona a extensão no nome do arquivo
+                            String NomeArquivoExt = NomeArquivo + "." + ExtensaoArquivo;
+
+                            // Inicia os objetos de conexão da Amazon S3 com as credenciais
+                            AmazonS3 ObjAmazonS3 = new AmazonS3Client(new PropertiesCredentials(upload.class.getResourceAsStream("AwsCredenciais.properties")));
+
+                            // Envia para o servidor da Amazon
+                            ObjAmazonS3.putObject("renansbtech", NomeArquivoExt, ObjItemUpload.getInputStream(), null);
+
+                            // Converte o Arquivo                        
+                            HttpClient ObjHTTPClient = new DefaultHttpClient();
+                            try {
+                                // Cria o JSON e envia para o Zencoder...
+                                JSONObject ObjJSONTotal = new JSONObject();
+                                JSONObject ObjJSONOutput = new JSONObject();
+                                JSONObject ObjJSONThumb = new JSONObject();
+
+                                // Criando parâmetros para geração da Thumbnail
+                                ObjJSONThumb.put("width", 300);
+                                ObjJSONThumb.put("height", 160);
+                                ObjJSONThumb.put("number", 1);
+                                ObjJSONThumb.put("base_url", "s3://renansbtech");
+                                ObjJSONThumb.put("filename", NomeArquivo + "_thumb");
+                                ObjJSONThumb.put("public", 1);
+
+                                // Criando parâmetros de saída do vídeo
+                                ObjJSONOutput.put("url", "s3://renansbtech/" + NomeArquivo + "_saida.mp4");
+                                ObjJSONOutput.put("base_url", "s3://renansbtech");
+                                ObjJSONOutput.put("filename", NomeArquivo + "_saida.mp4");
+                                ObjJSONOutput.put("format", "mp4");
+                                ObjJSONOutput.put("video_codec", "h264");
+                                ObjJSONOutput.put("audio_codec", "aac");
+                                ObjJSONOutput.put("public", 1);                                
+                                ObjJSONOutput.put("thumbnails", ObjJSONThumb);
                         
-                        NomeArquivo += UUID.randomUUID().toString();
-                        String NomeArquivoExt = NomeArquivo + "." + ExtensaoArquivo;
+                                // Juntando todas as partes do JSON
+                                ObjJSONTotal.put("test", true);
+                                ObjJSONTotal.put("input", "s3://renansbtech/" + NomeArquivoExt);
+                                ObjJSONTotal.put("output", ObjJSONOutput);
 
-                        // Inicia os objetos de conexão da Amazon S3 com as credenciais
-                        AmazonS3 ObjAmazonS3 = new AmazonS3Client(new PropertiesCredentials(upload.class.getResourceAsStream("AwsCredenciais.properties")));
-                            
-                        // Envia para o servidor da Amazon
-                        ObjAmazonS3.putObject("renansbtech", NomeArquivoExt, ObjItemUpload.getInputStream(), null);
+                                // Enviando para o Zencoder
+                                // Criei um arquivo de Propriedades para o ZEncoder para não dar commit na chave....
+                                StringEntity ObjParamJSON = new StringEntity(ObjJSONTotal.toString());
+                                HttpPost ObjRequestZE = new HttpPost("https://app.zencoder.com/api/v2/jobs");
+                                ObjRequestZE.addHeader("Content-Type", "application/json");
+                                ObjRequestZE.addHeader("Zencoder-Api-Key", (new PropertiesCredentials(upload.class.getResourceAsStream("ZencoderCredenciais.properties"))).getAWSAccessKeyId());
+                                ObjRequestZE.setEntity(ObjParamJSON);
+                                ObjHTTPClient.execute(ObjRequestZE);
 
-                        // Converte o Arquivo                        
-                        HttpClient ObjHTTPClient = new DefaultHttpClient();
-                        try {
-                            // Cria o JSON e envia para o Zencoder...
-                            JSONObject ObjJSONTotal = new JSONObject();
-                            JSONObject ObjJSONOutput = new JSONObject();
-                            JSONObject ObjJSONThumb = new JSONObject();
-                            
-                            ObjJSONThumb.put("number", 1);
-                            ObjJSONThumb.put("width", 300);
-                            ObjJSONThumb.put("height", 160);
-                            ObjJSONThumb.put("base_url", "s3://renansbtech");
-                            ObjJSONThumb.put("filename", NomeArquivo + "_thumb.png");
-                            
-                            ObjJSONOutput.put("url", "s3://renansbtech/" + NomeArquivo + "_saida.mp4");
-                            ObjJSONOutput.put("base_url", "s3://renansbtech");
-                            ObjJSONOutput.put("filename", NomeArquivo + "_saida.mp4");
-                            ObjJSONOutput.put("format", "mp4");
-                            ObjJSONOutput.put("video_codec", "h264");
-                            ObjJSONOutput.put("audio_codec", "aac");
-                            ObjJSONOutput.put("public", 1);
-                            
-                            ObjJSONThumb.put("number", 1);
-                            ObjJSONThumb.put("base_url", "s3://renansbtech");
-                            ObjJSONThumb.put("filename", NomeArquivo + "_thumb");
-                            ObjJSONThumb.put("public", 1);
-                            
-                            ObjJSONOutput.put("thumbnails", ObjJSONThumb);
-                            
-                            
-                            //ObjJSONOutput.put("thumbnails", ObjJSONThumb);
-                                                       
-                            //ObjJSONThumb.put("public", 1);                            
-                            
-                            ObjJSONTotal.put("test", true);
-                            ObjJSONTotal.put("input", "s3://renansbtech/" + NomeArquivoExt);
-                            ObjJSONTotal.put("output", ObjJSONOutput);
-                     
-                            // Enviando para o Zencoder
-                            // Criei um arquivo de Propriedades para o ZEncoder para não dar commit.
-                            
-                            StringEntity ObjParamJSON = new StringEntity(ObjJSONTotal.toString());
-                            HttpPost ObjRequestZE = new HttpPost("https://app.zencoder.com/api/v2/jobs");
-                            ObjRequestZE.addHeader("Content-Type", "application/json");
-                            ObjRequestZE.addHeader("Zencoder-Api-Key", (new PropertiesCredentials(upload.class.getResourceAsStream("ZencoderCredenciais.properties"))).getAWSAccessKeyId());
-                            ObjRequestZE.setEntity(ObjParamJSON);
-                            ObjHTTPClient.execute(ObjRequestZE);
-
-                        } catch (Exception ex) {
-                            response.sendRedirect("erro.jsp?idErro=e3&msg="+ex.getMessage());
-                        } finally {
-                            ObjHTTPClient.getConnectionManager().shutdown();
+                            } catch (Exception ex) {
+                                response.sendRedirect("erro.jsp?idErro=e3&msg="+ex.getMessage());
+                            } finally {
+                                ObjHTTPClient.getConnectionManager().shutdown();
+                            }
+                            // Redireciona o usuário para a página informando do Upload.
+                            response.sendRedirect("sucesso.jsp");
                         }
-                        
-                        // Redireciona o usuário para a página informando do Upload.
-                        response.sendRedirect("sucesso.jsp");
                     }
                 }
             } catch (FileUploadException ex) {

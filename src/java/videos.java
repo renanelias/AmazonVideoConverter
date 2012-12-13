@@ -40,19 +40,22 @@ public class videos extends HttpServlet {
         PrintWriter out = response.getWriter();
         
         try {
-            URL url = new URL("https://app.zencoder.com/api/v2/jobs.json?api_key=" + (new PropertiesCredentials(upload.class.getResourceAsStream("ZencoderCredenciais.properties"))).getAWSAccessKeyId() + "&per_page=5");
-            HttpURLConnection connection = (HttpURLConnection)url.openConnection();
-            connection.setRequestMethod("GET");
-            connection.connect();
-
-            int code = connection.getResponseCode();
-            System.out.println("Response code of the object is "+code);
-            if (code==200)
+            // Faz uma requisição ao servidor do Zencoder solicitando a lista dos 5 últimos JOBS
+            URL ObjURL = new URL("https://app.zencoder.com/api/v2/jobs.json?api_key=" + (new PropertiesCredentials(upload.class.getResourceAsStream("ZencoderCredenciais.properties"))).getAWSAccessKeyId() + "&per_page=5");
+            HttpURLConnection ObjURLConexao = (HttpURLConnection)ObjURL.openConnection();
+            ObjURLConexao.setRequestMethod("GET");
+            ObjURLConexao.connect();
+            
+            // deu certo a requisição
+            if (ObjURLConexao.getResponseCode() == 200)
             {
-                InputStreamReader in = new InputStreamReader((InputStream) connection.getContent());
-                BufferedReader buff = new BufferedReader(in);
+                // Obtém o stream retornado pela requisição
+                InputStreamReader ObjInputStream = new InputStreamReader((InputStream) ObjURLConexao.getContent());
+                BufferedReader buff = new BufferedReader(ObjInputStream);
                 String conteudoLido = "";
                 String linha;
+                
+                // Lê linha a linha e armazena na variável
                 do {
                   linha = buff.readLine();
                   if (linha != null) {
@@ -60,16 +63,18 @@ public class videos extends HttpServlet {
                   }
                 } while (linha != null);
     
+                // Escreve o JSON recebido
                 out.print(conteudoLido);
             } 
             else {
+                // Não deu certo. Envia um JSON de erro.
                 JSONObject ObjJSONErro = new JSONObject();
                 ObjJSONErro.put("Erro", "Erro ao recuperar lista de arquivos.");
                 out.print(ObjJSONErro.toString());
             } 
-        }
-            
+        }            
         catch (Exception ex) {
+            // Não deu certo. Envia um JSON de erro.
             out.print("{\"Erro\": \"Erro ao recuprar lista de arquivos.\"}");
         }
         finally {            
