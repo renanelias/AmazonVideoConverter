@@ -1,0 +1,90 @@
+@charset "utf-8";
+/* CSS Document */
+
+*{
+	margin:0;
+	padding:0;
+}
+
+body{
+	background-color:#f4f4f4;
+	color:#000;
+	font:75% Arial, Helvetica, sans-serif;
+	text-align:center;
+	padding:50px
+}
+
+div#container{
+	text-align:left;
+	width:900px;
+	margin:0 auto;
+}
+
+h1, h2, h3{
+	color:#fff;
+	margin-bottom:10px
+}
+
+h3{
+	color:#f00;
+	font-size:200%
+}
+
+ul, li{list-style:none}
+
+a, input.button{
+	background-color:#036;
+	color:#fff;
+	text-decoration:none;
+	padding:7px;
+}
+
+header{
+	background-color:#036;
+	border-radius:7px;
+	-moz-border-radius:7px;
+	padding:10px;
+	margin-bottom:35px
+}
+
+nav{margin:20px 0}
+
+nav ul li{
+	display:inline;
+	margin-right:10px;
+}
+
+footer{font-size:90%}
+
+footer nav{margin-bottom:0}
+
+footer nav a{
+	background-color:transparent;
+	color:#f30;
+	padding:0
+}
+
+legend{
+	font-weight:700;
+	margin:5px
+}
+
+fieldset{
+	padding:10px 0 10px 70px;
+	border:1px dotted #036;
+}
+
+input{margin:20px 0 5px}
+
+label{
+	display:block;
+	font-size:90%;
+}
+
+input.button{
+	border-radius:7px;
+	-moz-border-radius:7px;
+	border-width:0;
+}
+
+a:hover{background-color:#f36}

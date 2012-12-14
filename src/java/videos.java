@@ -36,8 +36,9 @@ public class videos extends HttpServlet {
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         
+        // Informa o tipo de arquivo de retorno...
         response.setContentType("application/json");
-        PrintWriter out = response.getWriter();
+        PrintWriter ObjSaida = response.getWriter();
         
         try {
             // Faz uma requisição ao servidor do Zencoder solicitando a lista dos 5 últimos JOBS
@@ -64,21 +65,21 @@ public class videos extends HttpServlet {
                 } while (linha != null);
     
                 // Escreve o JSON recebido
-                out.print(conteudoLido);
+                ObjSaida.print(conteudoLido);
             } 
             else {
                 // Não deu certo. Envia um JSON de erro.
                 JSONObject ObjJSONErro = new JSONObject();
                 ObjJSONErro.put("Erro", "Erro ao recuperar lista de arquivos.");
-                out.print(ObjJSONErro.toString());
+                ObjSaida.print(ObjJSONErro.toString());
             } 
         }            
         catch (Exception ex) {
             // Não deu certo. Envia um JSON de erro.
-            out.print("{\"Erro\": \"Erro ao recuprar lista de arquivos.\"}");
+            ObjSaida.print("{\"Erro\": \"Erro ao recuprar lista de arquivos.\"}");
         }
         finally {            
-            out.close();
+            ObjSaida.close();
         }
     }
 

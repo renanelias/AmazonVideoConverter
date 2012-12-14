@@ -5,46 +5,32 @@
 --%>
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+
+
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Amazon Cloud Uploader - Vídeo Enviado com Sucesso!</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Lista de Vídeos - Amazon Cloud Uploader - Por Renan Elias</title>
+<meta name="description" content="Sistema web que faz o upload de vídeos para o servidor Amazon S3 e converte usando ZEncoder."/>
+<meta name="keywords" content="amazon s3, cloud, video upload, video encoding, zencoder"/>
 
-<style type="text/css">
-	* {
-		font-family: Verdana, Geneva, sans-serif;
-		font-size: 10pt;
-	}
-	
-	body {
-		margin: 0px 0px 0px 0px;	
-	}
-	
-	#head {
-		width: 100%;
-		height: 100px;	
-		background-color: #09F;
-		border-bottom: 2px solid #33F;
-		font-size: 30px;
-		padding: 10px 10px 10px 10px;
-	}
-	
-	#body {
-		padding: 10px 10px 10px 10px;
-	}
-	
-	#footer {
-		padding-top: 50px;
-		font-size: 8pt;	
-		text-align: center;
-	}
+<link rel="stylesheet" type="text/css" href="style.css">
 
-</style>
-
+<!--[if IE]>
+    <script type="text/javascript">
+        document.createElement("article");
+        document.createElement("nav");
+        document.createElement("section");
+        document.createElement("header");
+        document.createElement("aside");
+        document.createElement("figure");
+        document.createElement("legend");
+        document.createElement("footer");
+    </script>
+<![endif] -->
 <script src="http://code.jquery.com/jquery-1.8.3.min.js" type="text/javascript"></script>
-<script type="text/javascript" src="player/jwplayer.js" ></script>
-
+<script src="player/jwplayer.js" type="text/javascript"></script>
 <script type="text/javascript">
 	function IniciarVideo(URL, Thumb) {
 		jwplayer("play").setup({
@@ -58,28 +44,44 @@
 </head>
 
 <body>
-<div id="head">
-	Amazon Cloud Uploader<br />
-    <p>Amazon S3 + Zencoder</p>
-</div>
-<div id="body">
-	<p align="center">Arquivo enviado com sucesso!</p>
-	<p align="center">Selecione um vídeo na lista abaixo para reproduzir no navegador:</p>
-    <br />
+<div id="container">
+	<header>
+    	<h1>Amazon Cloud Uploader</h1>
+        <h2>Amazon S3 + Zencoder</h2>
+    </header>
     
-    <div id="play"></div>
+    <nav>
+    	<ul>
+        	<li><a href="mailto:renan.elias@gmail.com?Subject=Contato" title="Entrar em contato" rel="me">Entrar em Contato</a></li>
+            <li><a href="sucesso.jsp" title="Veja todos os vídeos">Visualizar arquivos enviados</a></li>
+            <li><a href="#" onClick="return AtualizarLista(true)" title="Atualizar lista de vídeos">Atualizar lista</a></li>
+                <li><a href="index.jsp" title="Envie outro vídeo para a lista">Enviar outro vídeo</a></li>
+        </ul>
+    </nav>
     
-    <div align="center">
-        <p align="center"><a href="#" onclick="return AtualizarLista(true)">Atualizar Lista</a> | <a href="index.jsp">Enviar Outro Vídeo</a></p>
-        <div id="listaVideos" align="center">
-            Carregando Vídeos
-        </div>
-    </div>  
-</div>
-<div id="footer">
-	Amazon Cloud Uploader<br />
-    Desenvolvido por Renan Elias<br />
-    Dezembro/2012
+    <div id="content">
+    	<article>
+            <header>
+        	<div id="play"><p style="color:white">Selecione um vídeo na lista abaixo para reproduzir no navegador:</p></div>
+            </header>
+                <div align="center">
+                    <div id="listaVideos" align="center">
+                        Carregando Vídeos
+                    </div>
+                </div>  
+            </div>
+        </article>
+    </div>
+    
+    <footer>
+        <nav>
+            <ul>
+                <li><a href="mailto:renan.elias@gmail.com?Subject=Contato" title="Entrar em contato" rel="me">Entrar em Contato</a></li>
+                <li><a href="sucesso.jsp" title="Veja todos os vídeos">Visualizar arquivos enviados</a></li>
+            </ul>
+        </nav>
+        <address>Amazon Cloud Uploader - <strong>Desenvolvido por Renan Elias</strong> - Dezembro/2012</address>
+    </footer>
 </div>
 
 <script type="text/javascript">
@@ -123,5 +125,7 @@
 		return false;
 	}
 </script>
+
 </body>
 </html>
+

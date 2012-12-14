@@ -6,77 +6,64 @@
 
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml">
+<!DOCTYPE html>
+<html lang="pt-br">
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<title>Amazon Cloud Uploader - Ocorreu um erro</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Erro inesperado! - Amazon Cloud Uploader - Por Renan Elias</title>
+<meta name="description" content="Sistema web que faz o upload de vídeos para o servidor Amazon S3 e converte usando ZEncoder."/>
+<meta name="keywords" content="amazon s3, cloud, video upload, video encoding, zencoder"/>
 
-<style type="text/css">
-	* {
-		font-family: Verdana, Geneva, sans-serif;
-		font-size: 10pt;
-	}
-	
-	body {
-		margin: 0px 0px 0px 0px;	
-	}
-	
-	#head {
-		width: 100%;
-		height: 100px;	
-		background-color: #09F;
-		border-bottom: 2px solid #33F;
-		font-size: 30px;
-		padding: 10px 10px 10px 10px;
-	}
-	
-	#body {
-		padding: 10px 10px 10px 10px;
-	}
-	
-	#footer {
-		padding-top: 50px;
-		font-size: 8pt;	
-		text-align: center;
-	}
-	
-</style>
+<link rel="stylesheet" type="text/css" href="style.css">
 
+<!--[if IE]>
+    <script type="text/javascript">
+        document.createElement("article");
+        document.createElement("nav");
+        document.createElement("section");
+        document.createElement("header");
+        document.createElement("aside");
+        document.createElement("figure");
+        document.createElement("legend");
+        document.createElement("footer");
+    </script>
+<![endif] -->
 
 </head>
 
 <body>
-<div id="head">
-	Amazon Cloud Uploader<br />
-    <p>Amazon S3 + Zencoder</p>
-</div>
-<div id="body">
-	<p align="left" style="color: red; font-size: 20pt">Ocorreu um erro!</p>
-	<p align="left" style="font-size: 15pt">Ocorreu um erro em sua solicitação: <%
-            if (request.getParameter("idErro") == null) {
-                %>Código de erro inválido.<%
-            } else {
-                String CodigoErro = request.getParameter("idErro").toString();
-                String Mensagem = request.getParameter("msg");
-                if (CodigoErro.equals("e1")) {
-                    %>O Formulário enviado não é um arquivo.<%
-                } else if (CodigoErro.equals("e2")) {
-                    %>Ocorreu um erro ao receber o arquivo e salvar no servidor Amazon S3<% out.print(Mensagem == null ? "." : ": " + Mensagem);
-                } else if (CodigoErro.equals("e3")) {
-                    %>Ocorreu um erro ao solicitar a conversão do vídeo no site da Zencoder<% out.print(Mensagem == null ? "." : ": " + Mensagem);
-                } else if (CodigoErro.equals("e4")) {
-                    %>O Arquivo Enviado não é um vídeo<%
-                } else {
-                    %>Código de erro desconhecido.<%
-                }
-            }
-        %></p>
-</div>
-<div id="footer">
-	Amazon Cloud Uploader<br />
-    Desenvolvido por Renan Elias<br />
-    Dezembro/2012
+<div id="container">
+	<header>
+    	<h1>Amazon Cloud Uploader</h1>
+        <h2>Amazon S3 + Zencoder</h2>
+    </header>
+    
+    <nav>
+    	<ul>
+        	<li><a href="mailto:renan.elias@gmail.com?Subject=Contato" title="Entrar em contato" rel="me">Entrar em Contato</a></li>
+            <li><a href="sucesso.jsp" title="Veja todos os vídeos">Visualizar arquivos enviados</a></li>
+        </ul>
+    </nav>
+    
+    <div id="content">
+    	<article>
+        	<h3>Ocorreu um erro!</h3>
+                Ocorreu um erro em sua solicitação: <%
+            String Mensagem = request.getParameter("msg");
+            out.print(Mensagem == null ? "Erro desconhecido." : Mensagem);
+        %>
+        </article>
+    </div>
+    
+    <footer>
+        <nav>
+            <ul>
+                <li><a href="mailto:renan.elias@gmail.com?Subject=Contato" title="Entrar em contato" rel="me">Entrar em Contato</a></li>
+                <li><a href="sucesso.jsp" title="Veja todos os vídeos">Visualizar arquivos enviados</a></li>
+            </ul>
+        </nav>
+        <address>Amazon Cloud Uploader - <strong>Desenvolvido por Renan Elias</strong> - Dezembro/2012</address>
+    </footer>
 </div>
 
 </body>
